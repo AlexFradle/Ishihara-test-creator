@@ -14,7 +14,10 @@ class Dot:
 
 
 class Dots:
-    def __init__(self, cc: int, u: int, l: int, optn: int, func: Callable[[int, int], bool]=None, radius: int=350, img_name: str="read_img.bmp"):
+    def __init__(
+            self, cc: int, u: int, l: int, optn: int,
+            func: Callable[[int, int], bool]=None, radius: int=350, img_name: str="read_img.bmp"
+    ):
         """
         Constructor
         :param cc: The amount of circles to draw
@@ -26,19 +29,19 @@ class Dots:
         """
         self.circle_count = cc
         # Randomly generating each radius
-        self.radi = [randint(l, u) for _ in range(self.circle_count)]
+        self.__radi = [randint(l, u) for _ in range(self.circle_count)]
         self.dots = []
-        self.radius = radius
+        self.__radius = radius
         # Graph function
-        self.func = (lambda x1, y1: (x1 - 360) ** 2 + (y1 - 360) ** 2 <= self.radius ** 2) if func is None else func
-        assert isinstance(self.func(0, 0), bool), "function didn't return boolean"
+        self.__func = (lambda x1, y1: (x1 - 360) ** 2 + (y1 - 360) ** 2 <= self.__radius ** 2) if func is None else func
+        assert isinstance(self.__func(0, 0), bool), "function didn't return boolean"
         # Loading image
         img = Image.open(img_name)
         pixels = img.load()
         # Creating pixel list
-        self.img_coords = [[pixels[i, j] for j in range(720)] for i in range(720)]
+        self.__img_coords = [[pixels[i, j] for j in range(720)] for i in range(720)]
         self.percentage = 0
-        self.optn = optn
+        self.__optn = optn
         # Starting make_dots thread to do task in background
         threading.Thread(target=self.make_dots, daemon=True).start()
 
@@ -75,21 +78,21 @@ class Dots:
             }
         }
         # Assigning which blindness option to use
-        optn = [i[1] for i in enumerate(colours) if i[0] == self.optn - 1][0]
+        optn = [i[1] for i in enumerate(colours) if i[0] == self.__optn - 1][0]
         count = 0
         # Loop to randomly make circle fit inside bounds
         while True:
             # Allowed 10 pixels each side to adjust for bigger radii
-            x = randint(10, (self.radius * 2) - 10)
-            y = randint(10, (self.radius * 2) - 10)
+            x = randint(10, (self.__radius * 2))
+            y = randint(10, (self.__radius * 2))
             # If coords satisfy func
-            if self.func(x, y):
+            if self.__func(x, y):
                 # Checking circle collision
-                n = pygame.Rect(0, 0, self.radi[count] * 2, self.radi[count] * 2)
+                n = pygame.Rect(0, 0, self.__radi[count] * 2, self.__radi[count] * 2)
                 n.center = (x, y)
                 able = []
                 for p, i in enumerate(self.dots):
-                    r = pygame.Rect(0, 0, self.radi[p] * 2, self.radi[p] * 2)
+                    r = pygame.Rect(0, 0, self.__radi[p] * 2, self.__radi[p] * 2)
                     r.center = (i.x, i.y)
                     if r.colliderect(n):
                         able.append(False)
@@ -97,8 +100,8 @@ class Dots:
                         able.append(True)
                 # If circle doesnt collide with anything it is allowed
                 if all(able):
-                    col = choice(colours[optn]["inner"]) if self.img_coords[x][y] == 0 else choice(colours[optn]["outer"])
-                    self.dots.append(Dot(x, y, self.radi[count], col))
+                    col = choice(colours[optn]["inner"]) if self.__img_coords[x][y] == 0 else choice(colours[optn]["outer"])
+                    self.dots.append(Dot(x, y, self.__radi[count], col))
                     count += 1
                     self.percentage = len(self.dots) / self.circle_count
             # If all circles are placed the break

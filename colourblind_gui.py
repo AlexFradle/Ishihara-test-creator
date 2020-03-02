@@ -60,7 +60,7 @@ running = True
 load_bar_outer = pygame.Rect(780, 10, 30, 700)
 
 # Initiates Dots class to start making dots to be drawn
-dots = Dots(2000, 5, 2, choice)
+dots = Dots(2000, 7, 2, choice)
 
 # Main game loop
 while running:
@@ -85,5 +85,6 @@ while running:
     pygame.display.update()
     clock.tick(60)
 
+pygame.image.save(display, "colour_dots.bmp")
 
 pygame.quit()
